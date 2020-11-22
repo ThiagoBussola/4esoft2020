@@ -47,7 +47,7 @@ public class App extends JDialog {
         final JPanel firstRowPanel = new JPanel();
         firstRowPanel.setLayout(new BoxLayout(firstRowPanel, BoxLayout.X_AXIS));
         firstRowPanel.setAlignmentX(Component.LEFT_ALIGNMENT);        
-        firstRowPanel.add(new JLabel("Producers:   "));        
+        firstRowPanel.add(new JLabel("Total de Atividades:   "));        
         final JTextField fieldProducerCount = new JTextField(20);
         final JButton btnAddProducer = new JButton(" + ");
         btnAddProducer.addActionListener(e -> {            
@@ -69,40 +69,55 @@ public class App extends JDialog {
         secondRowPanel.add(new JLabel("Consumers: "));        
         final JTextField fieldConsumerCount = new JTextField(20);
         final JButton btnAddConsumer = new JButton(" + ");
+        final JButton btnRemoveConsumer = new JButton(" - ");
+
         btnAddConsumer.addActionListener(e -> {            
             JobConsumer newConsumer = new JobConsumer(jobs);
             consumers.add(newConsumer);
             fieldConsumerCount.setText(String.valueOf(consumers.size()));
             newConsumer.start();
         });
+
+         btnRemoveConsumer.addActionListener(e -> {
+            if (!consumers.isEmpty()) {
+                consumers.get(0).stopConsumer();
+                consumers.remove(0);
+                fieldConsumerCount.setText(String.valueOf(consumers.size()));
+            }
+        });
+
         fieldConsumerCount.setEnabled(false);
         fieldConsumerCount.setMaximumSize(fieldConsumerCount.getPreferredSize());
         btnAddConsumer.setMaximumSize(btnAddConsumer.getPreferredSize());
         secondRowPanel.add(fieldConsumerCount);
         secondRowPanel.add(btnAddConsumer);
+        secondRowPanel.add(btnRemoveConsumer);
         secondRowPanel.add(Box.createHorizontalGlue());
 
         
         final JPanel thirdRowPanel = new JPanel();
         thirdRowPanel.setLayout(new BoxLayout(thirdRowPanel, BoxLayout.X_AXIS));
         thirdRowPanel.setAlignmentX(Component.LEFT_ALIGNMENT);        
-        thirdRowPanel.add(new JLabel("Job count:    "));        
+        thirdRowPanel.add(new JLabel("Tarefas na fila:    "));        
         final JTextField fieldJobCount = new JTextField(20);
         fieldJobCount.setEnabled(false);
         fieldJobCount.setMaximumSize(fieldJobCount.getPreferredSize());
         thirdRowPanel.add(fieldJobCount);
         thirdRowPanel.add(Box.createHorizontalGlue());
 
-        //Registrando o listener de nosso padrão Observer para atualizar a UI quando o tamanho da 
-        //fila de jobs mudar (tanto para mais quanto para menos).
         this.jobs.addJobQueueListener(jobCount -> {
-           fieldJobCount.setText(String.valueOf(jobCount)); 
+            fieldJobQueueCount.setText(String.valueOf(jobCount));
+        }, 
+        processingCount -> {
+            fieldJobProcessingCount.setText(String.valueOf(processingCount));
         });
+
 
 
         panel.add(firstRowPanel);
         panel.add(secondRowPanel);
         panel.add(thirdRowPanel);
+        panel.add(fourthRowPanel);
         return panel;
     }
 

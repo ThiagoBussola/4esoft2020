@@ -1,8 +1,10 @@
 package aula20201116;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class JobConsumer extends Thread {
     private JobQueue jobs;
     private Integer assignedJob = null;
+    private AtomicBoolean isRunning = new AtomicBoolean(true);
 
     public JobConsumer(JobQueue jobs) {
         this.jobs = jobs;
@@ -10,12 +12,12 @@ public class JobConsumer extends Thread {
 
     @Override
     public void run() {
-        while (true) {
+        while (isRunning.get()) {
             if (assignedJob == null || assignedJob == 0) {
                 try {
                     assignedJob = jobs.getNextJob();
                     if (assignedJob == null) {
-                        System.out.println("Nothing to do... " + System.currentTimeMillis() + " " + this);
+                        System.out.println("Nada para fazer zzz " + System.currentTimeMillis() + " " + this);
                         this.sleep(5000);
                     }
                 } catch (InterruptedException e) {
@@ -24,16 +26,19 @@ public class JobConsumer extends Thread {
             } else {
                 int workToDo = assignedJob;
                 for (int i = assignedJob; i >= 0; i--) {
-                    System.out.println("I'm working. Job size " + assignedJob + ", " + i + " left. " + System.currentTimeMillis() + ": " + this);                    
+                    System.out.println("Trabalhando... Tamanho do Job " + assignedJob + ", " + System.currentTimeMillis() + ": " + this);                    
                     try {
                         this.sleep(1000);
-                    } catch (InterruptedException e) {
+                    } catch (InterruptedException err) {
                         e.printStackTrace();
                     }
                 }
+                jobs.concludeJob()
                 assignedJob = null;
             }
-
+            public void stopConsumer() {
+                isRunning.set(false);
+            }
         }
     }
 
